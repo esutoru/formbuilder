@@ -5,7 +5,7 @@ from backend.src.api import api_router
 from backend.src.config import settings
 
 app = FastAPI(
-    title="Geo Board API",
+    title="Form Builder API",
     description=(
         "Welcome to Form Builder API documentation! Here you will able to discover "
         "all of the ways you can interact with the Form Builder API."

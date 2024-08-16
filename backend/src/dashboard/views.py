@@ -14,6 +14,7 @@ from backend.src.dashboard.schemas import (
     DashboardUpdateSchema,
 )
 from backend.src.database.dependencies import get_db
+from backend.src.forms import services as form_services
 from backend.src.permissions.dependencies import PermissionsDependency
 from backend.src.users.dependencies import get_current_user
 from backend.src.users.models import User
@@ -97,7 +98,10 @@ async def update_dashboard_partial(
     status_code=status.HTTP_204_NO_CONTENT,
     responses={404: {"model": DashboardDoesNotFound, "description": "Dashboard doesn't found."}},
 )
-async def delete_widget(
+async def delete_dashboard(
     db_session: AsyncSession = Depends(get_db), dashboard: Dashboard = Depends(get_dashboard)
 ) -> None:
+    await form_services.delete_all_by_dashboard_uuid(
+        db_session=db_session, dashboard_uuid=dashboard.uuid
+    )
     await dashboard_services.delete_by_uuid(db_session=db_session, uuid=dashboard.uuid)
