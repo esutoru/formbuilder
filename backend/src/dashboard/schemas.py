@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class DashboardDoesNotFound(BaseModel):
@@ -9,19 +9,19 @@ class DashboardDoesNotFound(BaseModel):
 
 class DashboardSchema(BaseModel):
     uuid: UUID
-    name: str
+    name: str = Field(min_length=3)
 
 
 class DashboardCreateSchema(BaseModel):
-    name: str
+    name: str = Field(min_length=3)
 
     class Config:
         from_attributes = True
 
 
 class DashboardUpdateSchema(BaseModel):
-    name: str
+    name: str = Field(min_length=3)
 
 
 class DashboardPartialUpdateSchema(BaseModel):
-    name: str | None = None
+    name: str | None = Field(None, min_length=3)
