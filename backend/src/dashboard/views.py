@@ -101,6 +101,9 @@ async def update_dashboard_partial(
 async def delete_dashboard(
     db_session: AsyncSession = Depends(get_db), dashboard: Dashboard = Depends(get_dashboard)
 ) -> None:
+    await form_services.delete_all_records_by_dashboard_uuid(
+        db_session=db_session, dashboard_uuid=dashboard.uuid
+    )
     await form_services.delete_all_by_dashboard_uuid(
         db_session=db_session, dashboard_uuid=dashboard.uuid
     )

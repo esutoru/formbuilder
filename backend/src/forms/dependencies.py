@@ -25,12 +25,12 @@ async def get_form(
     )
 
 
-async def get_public_form(
+async def get_shared_form(
     db_session: AsyncSession = Depends(get_db),
     uuid: UUID = Path(...),
 ) -> Form:
     instance = await form_services.get_by_uuid(db_session=db_session, uuid=uuid)
-    if instance and instance.is_active:
+    if instance and instance.shared:
         return instance
 
     raise HTTPException(

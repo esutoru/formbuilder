@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Any
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -18,23 +18,27 @@ class FormSchema(BaseModel):
     name: NameField
     description: str
     color: str
-    is_active: bool
+    shared: bool
     dashboard_uuid: UUID
     structure: FormStructure
 
+    class Config:
+        from_attributes = True
 
-class PublicFormSchema(BaseModel):
+
+class SharedFormSchema(BaseModel):
     uuid: UUID
     name: NameField
     description: str
     color: str
+    structure: FormStructure
 
 
 class FormCreateSchema(BaseModel):
     name: NameField
     description: str
     color: str
-    is_active: bool
+    shared: bool
     dashboard_uuid: UUID
     structure: FormStructure
 
@@ -46,7 +50,7 @@ class FormUpdateSchema(BaseModel):
     name: NameField
     description: str
     color: str
-    is_active: bool
+    shared: bool
     structure: FormStructure
 
 
@@ -54,5 +58,20 @@ class FormPartialUpdateSchema(BaseModel):
     name: OptionalNameField
     description: str | None = None
     color: str | None = None
-    is_active: bool | None = None
+    shared: bool | None = None
     structure: FormStructure | None = None
+
+
+class FormRecordSchema(BaseModel):
+    uuid: UUID
+    form_uuid: UUID
+    data: dict[str, Any]
+
+
+class FormRecordCreateSchema(BaseModel):
+    form_uuid: UUID
+    data: dict[str, Any]
+
+
+class CreateFormRecordResponseSchema(BaseModel):
+    success: bool

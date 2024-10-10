@@ -10,7 +10,7 @@ DefaultValueT = TypeVar("DefaultValueT")
 class ParamsSchema(BaseModel, Generic[DefaultValueT]):
     required: bool
     help_text: str
-    default_value: DefaultValueT
+    default_value: DefaultValueT | None = None
 
 
 FormFieldCategoryT = TypeVar("FormFieldCategoryT", bound=FormFieldCategory)

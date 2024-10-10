@@ -1,17 +1,18 @@
-from typing import Sequence
+from typing import Any, Sequence
 from uuid import UUID
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.src.dashboard.models import Dashboard
 from backend.src.forms.schemas import (
     FormCreateSchema,
     FormPartialUpdateSchema,
+    FormRecordCreateSchema,
     FormUpdateSchema,
 )
 
-from .models import Form
+from .models import Form, FormRecord
 
 
 async def get_all(*, db_session: AsyncSession, user_id: int) -> Sequence[Form]:
@@ -63,7 +64,7 @@ async def create(*, db_session: AsyncSession, data: FormCreateSchema) -> Form:
     return instance
 
 
-async def update(
+async def update_form(
     *,
     db_session: AsyncSession,
     form: Form,
@@ -89,4 +90,45 @@ async def delete_by_uuid(*, db_session: AsyncSession, uuid: UUID) -> None:
 
 async def delete_all_by_dashboard_uuid(*, db_session: AsyncSession, dashboard_uuid: UUID) -> None:
     await db_session.execute(delete(Form).where(Form.dashboard_uuid == dashboard_uuid))
+    await db_session.commit()
+
+
+async def create_form_record(
+    *, db_session: AsyncSession, data: FormRecordCreateSchema
+) -> FormRecord:
+    instance = FormRecord(**data.model_dump(exclude_unset=True))
+    db_session.add(instance)
+    await db_session.commit()
+    await db_session.refresh(instance)
+    return instance
+
+
+async def delete_all_records_by_dashboard_uuid(
+    *, db_session: AsyncSession, dashboard_uuid: UUID
+) -> None:
+    await db_session.execute(
+        delete(FormRecord)
+        .where(FormRecord.form_uuid == Form.uuid)
+        .where(Form.dashboard_uuid == dashboard_uuid)
+    )
+    await db_session.commit()
+
+
+async def delete_all_records_by_form_uuid(*, db_session: AsyncSession, form_uuid: UUID) -> None:
+    await db_session.execute(delete(FormRecord).where(FormRecord.form_uuid == form_uuid))
+    await db_session.commit()
+
+
+async def omit_fields_from_form_records_data(
+    *, db_session: AsyncSession, form_uuid: UUID, fields: Sequence[str]
+) -> None:
+    new_value: Any = FormRecord.data
+    for field in fields:
+        new_value = new_value.op("-")(field)
+
+    await db_session.execute(
+        update(FormRecord)
+        .where(FormRecord.form_uuid == form_uuid)
+        .values({FormRecord.data: new_value})
+    )
     await db_session.commit()
